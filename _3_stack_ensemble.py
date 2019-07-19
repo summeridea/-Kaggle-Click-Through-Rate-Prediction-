@@ -36,7 +36,7 @@ INITIAL_PARAMS = {
 
 }
 
-MODEL_NAME = 'blend_ensemble'
+MODEL_NAME = 'stack_ensemble'
 
 if __name__ == '__main__':
 
@@ -52,14 +52,14 @@ if __name__ == '__main__':
         GradientBoostingClassifier().set_params(**INITIAL_PARAMS.get("GBDT:", {})),
     ]
 
-    print("Creating train and test sets for blending.")
+    print("Creating train and test sets for stacking.")
 
-    dataset_blend_train = np.zeros((X.shape[0], len(clfs)))
-    dataset_blend_test = np.zeros((X_submission.shape[0], len(clfs)))
+    dataset_stack_train = np.zeros((X.shape[0], len(clfs)))
+    dataset_stack_test = np.zeros((X_submission.shape[0], len(clfs)))
 
     for j, clf in enumerate(clfs):
         print(j, clf)
-        dataset_blend_test_j = np.zeros((X_submission.shape[0], NFOLDS))
+        dataset_stack_test_j = np.zeros((X_submission.shape[0], NFOLDS))
         for i, (train_index, test_index) in enumerate(skf.split(X)):
             # 训练集 与 验证集
             print("Fold", i)
@@ -70,17 +70,17 @@ if __name__ == '__main__':
             clf.fit(X_train, y_train)
             y_submission = clf.predict_proba(X_test)[:, 1]
 
-            dataset_blend_train[test_index, j] = y_submission  # 第j个基学习器的预测值
-            dataset_blend_test_j[:, i] = clf.predict_proba(X_submission)[:, 1]
-        dataset_blend_test[:, j] = dataset_blend_test_j.mean(1)
+            dataset_stack_train[test_index, j] = y_submission  # 第j个基学习器的预测值
+            dataset_stack_test_j[:, i] = clf.predict_proba(X_submission)[:, 1]
+        dataset_stack_test[:, j] = dataset_stack_test_j.mean(1)
 
-    print("Blending.")
+    print("stacking.")
 
     clf = Ridge(alpha=0.5)
 
-    clf.fit(dataset_blend_train, y)
+    clf.fit(dataset_stack_train, y)
 
-    y_submission = clf.predict(dataset_blend_test)  # for RidgeCV
+    y_submission = clf.predict(dataset_stack_test)  # for RidgeCV
 
     y_submission = (y_submission - y_submission.min()) / (y_submission.max() - y_submission.min())
 
