@@ -85,4 +85,4 @@ if __name__ == '__main__':
     y_submission = (y_submission - y_submission.min()) / (y_submission.max() - y_submission.min())
 
     y_out = pd.DataFrame({'id': list(id_), 'click': y_submission})
-    y_out.to_csv('out_1.csv', index=False, sep=',')  # 保存预测值
+    y_out.to_csv('data.csv', index=False, sep=',')  # 保存预测值
