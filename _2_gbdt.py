@@ -33,4 +33,4 @@ y_pred = gbm.predict(X_)
 y_predprob = gbm.predict_proba(X_)[:,1]
 
 y_out = pd.DataFrame({'id': list(id_), 'click': y_predprob})
-y_out.to_csv('out.csv', index = False, sep = ',')  #保存预测值
+y_out.to_csv('y_out1.csv', index = False, sep = ',')  #保存预测值
